@@ -17,8 +17,8 @@ node {
     // def SFDC_HOST = env.SFDC_HOST
     // def CONNECTED_APP_CONSUMER_KEY=env.CONNECTED_APP_CONSUMER_KEY
     def HUB_ORG="vernika@irketa.com"
-    def HUB_KEY="jenkins/server_adcxgs0hub.my.salesforce.com.key"
-    def SFDC_HOST="https://adcxgs0hub.my.salesforce.com"
+    def HUB_KEY="http://localhost:8080/credentials/store/system/domain/_/credential/6603f0e6-0f1c-4f90-a0ab-a9a4cc685ac5/"
+    def SFDC_HOST="https://login.salesforce.com"
     def CONNECTED_APP_CONSUMER_KEY="3MVG9d8..z.hDcPL49w5EnCz_y2ceXPgIXUjla7BCf4dW0AneDcsMXCTyNsc4i4CkC6d3shzTRY3ZTFZ_KlDj"
 
     def toolbelt = tool 'toolbelt'

@@ -3,7 +3,7 @@ import groovy.json.JsonSlurperClassic
 node {
 
     def SERIAL = System.currentTimeMillis()
-    //def BRANCH = env.BRANCH_NAME.replaceAll(/[\/\\]/, '')
+    def BRANCH = env.BRANCH_NAME.replaceAll(/[\/\\]/, '')
     def BUILD_NUMBER=env.BUILD_NUMBER
     def RUN_ARTIFACT_DIR="tests/${BUILD_NUMBER}"
     def SFDC_USERNAME="ci-${BRANCH}-${SERIAL}-pr@dhci.com"

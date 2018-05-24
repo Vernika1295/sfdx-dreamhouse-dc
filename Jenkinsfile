@@ -1,78 +1,51 @@
-#!groovy
-import hudson.model.*
-import hudson.EnvVars
+ 
+ #!groovy
 import groovy.json.JsonSlurperClassic
-import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
+#!/usr/bin/env groovy 
 import java.net.URL
-import groovy.json.JsonSlurperClassic
-node {
 
-    def SERIAL = System.currentTimeMillis()
-    def BRANCH = env.BRANCH_NAME.replaceAll(/[\/\\]/, '')
-    def BUILD_NUMBER=env.BUILD_NUMBER
-    def RUN_ARTIFACT_DIR="tests/${BUILD_NUMBER}"
-    def SFDC_USERNAME="ci-${BRANCH}-${SERIAL}-pr@dhci.com"
-    def CONNECTED_APP_CALLBACK_URL=env.CONNECTED_APP_CALLBACK_URL
-    def SIGN_UP_EMAIL=env.SIGN_UP_EMAIL
-    def API_VERSION=env.API_VERSION
-
-        // Hard coding until pete can repair the damage
-    // def HUB_ORG=env.HUB_ORG_DH
-    // def HUB_KEY=env.HUB_KEY_FILE_PATH
-    // def SFDC_HOST = env.SFDC_HOST
-    // def CONNECTED_APP_CONSUMER_KEY=env.CONNECTED_APP_CONSUMER_KEY
-    def HUB_ORG="vernika@irketa.com"
-    def HUB_KEY="http://localhost:8080/credentials/store/system/domain/_/credential/6603f0e6-0f1c-4f90-a0ab-a9a4cc685ac5/"
-    def SFDC_HOST="https://login.salesforce.com"
-    def CONNECTED_APP_CONSUMER_KEY="3MVG9d8..z.hDcPL49w5EnCz_y2ceXPgIXUjla7BCf4dW0AneDcsMXCTyNsc4i4CkC6d3shzTRY3ZTFZ_KlDj"
-
-    def toolbelt = tool 'toolbelt'
-
-    stage('checkout source') {
-        // when running in multi-branch job, one must issue this command
-        checkout scm
-    }
-
-    stage('Create Scratch Org') {
-
-        rc = sh returnStatus: true, script: "${toolbelt}/sfdx force:org:authorize -i ${CONNECTED_APP_CONSUMER_KEY} -u ${HUB_ORG} -f ${HUB_KEY} -y debug"
-        if (rc != 0) { error 'hub org authorization failed' }
-
-        // need to pull out assigned username 
-        rmsg = sh returnStdout: true, script: "${toolbelt}/sfdx force:org:create -f config/workspace-scratch-def.json -j -t test -y debug"
-        printf rmsg
-        def jsonSlurper = new JsonSlurperClassic()
-        def robj = jsonSlurper.parseText(rmsg)
-        if (robj.status != "ok") { error 'org creation failed: ' + robj.message }
-        SFDC_USERNAME=robj.username
-        robj = null
-        
-    }
-
-    stage('Push To Test Org') {
-        rc = sh returnStatus: true, script: "${toolbelt}/sfdx force:src:push --all --username ${SFDC_USERNAME} -y debug"
-        if (rc != 0) {
-            error 'push all failed'
-        }
-        // assign permset
-        rc = sh returnStatus: true, script: "${toolbelt}/sfdx force:permset:assign --username ${SFDC_USERNAME} --name DreamHouse -y debug"
-        if (rc != 0) {
-            error 'push all failed'
-        }
-    }
-
-    stage('Run Apex Test') {
-        sh "mkdir -p ${RUN_ARTIFACT_DIR}"
-        timeout(time: 120, unit: 'SECONDS') {
-            rc = sh returnStatus: true, script: "${toolbelt}/sfdx force:apex:test --testlevel RunLocalTests --outputdir ${RUN_ARTIFACT_DIR} --reporter tap --username ${SFDC_USERNAME} -y debug"
-            if (rc != 0) {
-                error 'apex test run failed'
-            }
-        }
-    }
-
-    stage('collect results') {
-        junit keepLongStdio: true, testResults: 'tests/**/*-junit.xml'
-    }
-}
+// Declarative // 
+pipeline {   
+  agent any
+    stages {       
+  stage('Build') {         
+  steps {             
+  echo 'Building..'      
+  }         }    
+  stage('Test') {   
+  steps {     
+  echo 'Testing..'   
+  }         }     
+  stage('Deploy') { 
+              steps { 
+                  echo 'Deploying....'      
+  }         }     } } // Script // node {  
+  stage('Build') {         echo 'Building....'     }     stage('Test') {     
+    echo 'Building....'   
+	}     stage('Deploy')
+	{         echo 'Deploying....'   
+	} }
+	// Script // node 
+	{  
+	checkout scm 
+	    /* .. snip .. */ } 
+	// Declarative not yet implemented //
+// Declarative // pipeline {     agent any
+    stages {         stage('Build') {             steps { 
+                sh 'make' ①             
+    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true ②          
+	}         }     } } // Script // node {     stage('Build') {       
+	sh 'make' ①         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true ②    
+	} }
+// Declarative // pipeline {     agent any
+    stages {         stage('Test') {             steps {    
+             /* `make check` returns non-zero on test failures,            
+			 * using `true` to allow the Pipeline to continue nonetheless                 */  
+			 sh 'make check || true' ①                 junit '**/target/*.xml' ②           
+			 }         }     } } // Script // 
+			 node
+			 {     /* .. snip .. */   
+			 stage('Test') {   
+			 /* `make check` returns non-zero on test failures,  
+			 * using `true` to allow the Pipeline to continue nonetheless 
+			          */         sh 'make check || true' ①         junit '**/target/*.xml' ②     }     /* .. snip .. */ }

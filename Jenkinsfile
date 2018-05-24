@@ -1,4 +1,3 @@
- 
  #!groovy
 import groovy.json.JsonSlurperClassic
 #!/usr/bin/env groovy 

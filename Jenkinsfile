@@ -6,11 +6,14 @@ import java.net.URL
 // Declarative // 
 pipeline {   
   agent any
-    stages {       
+    stages {   
+	    
   stage('Build') {         
-  steps {             
+  steps {  
+	  
   echo 'Building..'      
-  }         }    
+  }       
+  }    
   stage('Test') {   
   steps {     
   echo 'Testing..'   
@@ -31,20 +34,24 @@ pipeline {  
 	// Declarative not yet implemented //
 // Declarative // pipeline {     agent any
     stages {         stage('Build') {             steps { 
-                sh 'make' ①             
-    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true ②          
+                sh 'make'          
+    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true        
 	}         }     } } // Script // node {     stage('Build') {       
-	sh 'make' ①         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true ②    
+	sh 'make'         archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true    
 	} }
 // Declarative // pipeline {     agent any
     stages {         stage('Test') {             steps {    
              /* `make check` returns non-zero on test failures,            
-			 * using `true` to allow the Pipeline to continue nonetheless                 */  
-			 sh 'make check || true' ①                 junit '**/target/*.xml' ②           
-			 }         }     } } // Script // 
+			 * using `true` to allow the Pipeline to continue nonetheless */  
+	    
+			 sh 'make check || true'                  junit '**/target/*.xml'          
+			 }    
+				   }     } }
+// Script // 
 			 node
 			 {     /* .. snip .. */   
 			 stage('Test') {   
 			 /* `make check` returns non-zero on test failures,  
 			 * using `true` to allow the Pipeline to continue nonetheless 
-			          */         sh 'make check || true' ①         junit '**/target/*.xml' ②     }     /* .. snip .. */ }
+			          */         sh 'make check || true'        junit '**/target/*.xml' 
+			 }     /* .. snip .. */ }
